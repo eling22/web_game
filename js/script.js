@@ -18,9 +18,32 @@ function Ball() {
         this.x += this.dx;
         this.y += this.dy;
     };
+    this.nextPos = function () {
+        return {
+            left: this.x + this.dx - this.radius,
+            right: this.x + this.dx + this.radius,
+            top: this.y + this.dy - this.radius,
+            bottom: this.y + this.dy + this.radius
+        };
+    };
     this.boundaryBounce = function (canvas) {
-        if (this.x + this.dx - this.radius < 0 || this.x + this.dx + this.radius > canvas.width) this.dx = -this.dx;
-        if (this.y + this.dy - this.radius < 0 || this.y + this.dy + this.radius > canvas.height) this.dy = -this.dy;
+        var npos = this.nextPos();
+        if (npos.left < 0 || npos.right > canvas.width) this.dx = -this.dx;
+        if (npos.top < 0) this.dy = -this.dy;
+    };
+    this.gameOver = function () {
+        var npos = this.nextPos();
+        if (npos.bottom > canvas.height) {
+            alert("Game Over");
+            document.location.reload();
+            clearInterval(interval);
+        }
+    };
+    this.collision = function (paddle) {
+        var pos = paddle.getPos();
+        var npos = this.nextPos();
+        if (npos.bottom > pos.y1 && this.x > pos.x1 && this.x < pos.x2) this.dy = -this.dy;
+        //console.log()
     };
 }
 
@@ -48,6 +71,14 @@ function Paddle() {
         if (this.x + halfwidth > canvas.width) this.x = canvas.width - halfwidth;
         if (this.x - halfwidth < 0) this.x = halfwidth;
     };
+    this.getPos = function () {
+        return {
+            x1: this.x - halfwidth,
+            x2: this.x + halfwidth,
+            y1: canvas.height - this.height - 10,
+            y2: canvas.height - 10
+        };
+    };
 
 }
 var ball = new Ball();
@@ -74,6 +105,7 @@ function keyUpHandler(e) {
     }
 }
 
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ball.draw();
@@ -81,6 +113,8 @@ function draw() {
     ball.move();
     paddle.move();
     ball.boundaryBounce(canvas);
+    ball.collision(paddle);
+    ball.gameOver();
 }
 
-setInterval(draw, 10);
+var interval = setInterval(draw, 10);
