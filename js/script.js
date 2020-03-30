@@ -182,7 +182,6 @@ var brick = new Brick();
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
-
 function keyDownHandler(e) {
     if (e.key == "Right" || e.key == "ArrowRight") {
         paddle.rightPress = true;
@@ -197,6 +196,14 @@ function keyUpHandler(e) {
     }
     if (e.key == "Left" || e.key == "ArrowLeft") {
         paddle.leftPress = false;
+    }
+}
+
+document.addEventListener("mousemove", mouseMoveHandler, false);
+function mouseMoveHandler(e) {
+    var mouse_x = e.clientX - canvas.offsetLeft;
+    if (isInRange(mouse_x, paddle.width / 2, canvas.width - paddle.width / 2)) {
+        paddle.x = mouse_x;
     }
 }
 
