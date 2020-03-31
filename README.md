@@ -3,10 +3,9 @@ create small web game like minesweeper
 the page show on https://eling22.github.io/web_game/
 # next step
 * Breakout
-  * following the tutorial steps
-    * [Finishing up](https://developer.mozilla.org/en-US/docs/Games/Workflows/2D_Breakout_game_pure_JavaScript/Finishing_up)
   * my adding steps
     * start button 
+    * replace alert with other way to show win or gameover 
     * change the way show win or lose
     * score board
     * touch control
