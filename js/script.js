@@ -215,7 +215,6 @@ function mouseUpHandler(e) {
     var mouse_y = e.clientY - canvas.offsetTop;
     if (!game.startButton.checked) {
         game.startButton.click(mouse_x, mouse_y);
-        alert("Hello");
     }
 }
 
