@@ -4,11 +4,10 @@ the page show on https://eling22.github.io/web_game/
 # next step
 * Breakout
   * my adding steps
-    * start button 
     * replace alert with other way to show win or gameover 
-    * change the way show win or lose
     * score board
     * touch control
+    * setting for chosing mouse or keyboard
   * advance
     * different level 
     * different map
@@ -18,3 +17,4 @@ the page show on https://eling22.github.io/web_game/
 * log in
 * sound
 * setting
+* advertise

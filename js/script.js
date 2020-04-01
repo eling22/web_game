@@ -3,9 +3,35 @@ var ctx = canvas.getContext("2d");
 
 function isInRange(x, min, max) { return x > min && x < max; }
 
+function StartButton() {
+    this.width = 80;
+    this.height = 50;
+    this.x = (canvas.width - this.width) / 2;
+    this.y = (canvas.height - this.height) / 2;
+
+    this.checked = false;
+    this.draw = function () {
+        ctx.beginPath();
+        ctx.rect(this.x, this.y, this.width, this.height);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+        ctx.font = "25px Arial";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText("START", this.x, this.y+35);
+    };
+    this.click = function (x, y) {
+        if (isInRange(x, this.x, this.x + this.width) &&
+            isInRange(y, this.y, this.y + this.height)) {
+            this.checked = !this.checked;
+        }
+    };
+}
+
 function Game() {
     this.score = 0;
     this.live = 3;
+    this.startButton = new StartButton();
     this.drawScore = function () {
         ctx.font = "16px Arial";
         ctx.fillStyle = "#0095DD";
@@ -176,8 +202,20 @@ function keyUpHandler(e) {
 document.addEventListener("mousemove", mouseMoveHandler, false);
 function mouseMoveHandler(e) {
     var mouse_x = e.clientX - canvas.offsetLeft;
-    if (isInRange(mouse_x, paddle.width / 2, canvas.width - paddle.width / 2)) {
-        paddle.x = mouse_x;
+    if (game.startButton.checked) {
+        if (isInRange(mouse_x, paddle.width / 2, canvas.width - paddle.width / 2)) {
+            paddle.x = mouse_x;
+        }
+    }   
+}
+
+document.addEventListener("mouseup", mouseUpHandler, false);
+function mouseUpHandler(e) {
+    var mouse_x = e.clientX - canvas.offsetLeft;
+    var mouse_y = e.clientY - canvas.offsetTop;
+    if (!game.startButton.checked) {
+        game.startButton.click(mouse_x, mouse_y);
+        alert("Hello");
     }
 }
 
@@ -234,13 +272,16 @@ function draw() {
 }
 
 function main() {
-    draw();
-    ball.move();
-    paddle.move();
-    ball.boundaryBounce();
-    collisionDetection();
-    gameOver();
-    gameWin();
+    if (game.startButton.checked) {
+        draw();
+        ball.move();
+        paddle.move();
+        ball.boundaryBounce();
+        collisionDetection();
+        gameOver();
+        gameWin();
+    }
 }
 
+game.startButton.draw();
 var interval = setInterval(main, 10);
