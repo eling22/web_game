@@ -261,6 +261,16 @@ collisionDetection = function () {
     }
 };
 
+var img = new Image();
+//img.onload = function () {
+//    ctx.drawImage(img, canvas.width - 30, canvas.height - 30, 30, 30);
+//};
+img.src = "img/pause.png";
+drawImg = function () {
+    ctx.drawImage(img, canvas.width - 30, canvas.height - 30, 30, 30);
+}
+
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ball.draw();
@@ -268,6 +278,7 @@ function draw() {
     brick.draw();
     game.drawScore();
     game.drawLive();
+    drawImg();
 }
 
 function main() {
