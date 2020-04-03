@@ -3,14 +3,54 @@ var ctx = canvas.getContext("2d");
 
 function isInRange(x, min, max) { return x > min && x < max; }
 
-function StartButton() {
-    this.width = 80;
-    this.height = 50;
-    this.x = (canvas.width - this.width) / 2;
-    this.y = (canvas.height - this.height) / 2;
 
-    this.checked = false;
-    this.draw = function () {
+//var img = new Image();
+//img.src = "img/pause.png";
+
+var images = new Array();
+function preload() {
+    for (var i = 0; i < preload.arguments.length; i++) {
+        console.log(i);
+        images[i] = new Image();
+        images[i].src = preload.arguments[i];
+    }   
+}
+preload(
+    "img/pause.png"
+);
+
+
+class Button {
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+        this.x = (canvas.width - this.width) / 2;
+        this.y = (canvas.height - this.height) / 2;
+        this.checked = false;
+        document.addEventListener("click", this, false);
+    }
+    handleEvent(e) {
+        var mouse_x = e.clientX - canvas.offsetLeft;
+        var mouse_y = e.clientY - canvas.offsetTop;
+        switch (e.type) {
+            case 'click':
+                this.click(mouse_x, mouse_y);
+                document.removeEventListener("click", this, false);
+                break;
+        }
+    }
+    click(x, y) {
+        if (isInRange(x, this.x, this.x + this.width) &&
+            isInRange(y, this.y, this.y + this.height)) {
+            this.checked = !this.checked;
+        }
+    }
+}
+class StartButton extends Button {
+    constructor(width, height) {
+        super(width, height);
+    }
+    draw() {
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = "#0095DD";
@@ -18,20 +58,25 @@ function StartButton() {
         ctx.closePath();
         ctx.font = "25px Arial";
         ctx.fillStyle = "#FFFFFF";
-        ctx.fillText("START", this.x, this.y+35);
-    };
-    this.click = function (x, y) {
-        if (isInRange(x, this.x, this.x + this.width) &&
-            isInRange(y, this.y, this.y + this.height)) {
-            this.checked = !this.checked;
-        }
-    };
+        ctx.fillText("START", this.x, this.y + 35);
+    }
 }
+class PauseButton extends Button {
+    constructor(width, height) {
+        super(width, height);
+        this.img = images[0];
+    }
+    draw() {
+        ctx.drawImage(this.img, canvas.width - this.width, canvas.height - this.height, this.width, this.height);
+    }
+}
+
 
 function Game() {
     this.score = 0;
     this.live = 3;
-    this.startButton = new StartButton();
+    this.startButton = new StartButton(80, 50);
+    this.pauseButton = new PauseButton(30, 30);
     this.drawScore = function () {
         ctx.font = "16px Arial";
         ctx.fillStyle = "#0095DD";
@@ -209,15 +254,6 @@ function mouseMoveHandler(e) {
     }   
 }
 
-document.addEventListener("mouseup", mouseUpHandler, false);
-function mouseUpHandler(e) {
-    var mouse_x = e.clientX - canvas.offsetLeft;
-    var mouse_y = e.clientY - canvas.offsetTop;
-    if (!game.startButton.checked) {
-        game.startButton.click(mouse_x, mouse_y);
-    }
-}
-
 gameOver = function () {
     var npos = ball.nextPos();
     if (npos.bottom > canvas.height) {
@@ -261,16 +297,6 @@ collisionDetection = function () {
     }
 };
 
-var img = new Image();
-//img.onload = function () {
-//    ctx.drawImage(img, canvas.width - 30, canvas.height - 30, 30, 30);
-//};
-img.src = "img/pause.png";
-drawImg = function () {
-    ctx.drawImage(img, canvas.width - 30, canvas.height - 30, 30, 30);
-}
-
-
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ball.draw();
@@ -278,11 +304,13 @@ function draw() {
     brick.draw();
     game.drawScore();
     game.drawLive();
-    drawImg();
+    game.pauseButton.draw();
 }
 
 function main() {
-    if (game.startButton.checked) {
+    if (!game.startButton.checked) {
+        game.startButton.draw();
+    } else {
         draw();
         ball.move();
         paddle.move();
@@ -293,5 +321,4 @@ function main() {
     }
 }
 
-game.startButton.draw();
 var interval = setInterval(main, 10);
