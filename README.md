@@ -4,7 +4,6 @@ the page show on https://eling22.github.io/web_game/
 # next step
 * Breakout
   * my adding steps
-    * add pause/play function
     * replace alert with other way to show win or game over 
     * score board
     * touch control

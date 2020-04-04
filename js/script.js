@@ -2,23 +2,11 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
 function isInRange(x, min, max) { return x > min && x < max; }
-
-
-//var img = new Image();
-//img.src = "img/pause.png";
-
-var images = new Array();
-function preload() {
-    for (var i = 0; i < preload.arguments.length; i++) {
-        console.log(i);
-        images[i] = new Image();
-        images[i].src = preload.arguments[i];
-    }   
+function loadImg(path) {
+    var img = new Image();
+    img.src = path;
+    return img;
 }
-preload(
-    "img/pause.png"
-);
-
 
 class Button {
     constructor(width, height) {
@@ -27,6 +15,7 @@ class Button {
         this.x = (canvas.width - this.width) / 2;
         this.y = (canvas.height - this.height) / 2;
         this.checked = false;
+        this.show = false;
         document.addEventListener("click", this, false);
     }
     handleEvent(e) {
@@ -35,15 +24,18 @@ class Button {
         switch (e.type) {
             case 'click':
                 this.click(mouse_x, mouse_y);
-                document.removeEventListener("click", this, false);
                 break;
         }
     }
     click(x, y) {
-        if (isInRange(x, this.x, this.x + this.width) &&
+        if (this.show &&
+            isInRange(x, this.x, this.x + this.width) &&
             isInRange(y, this.y, this.y + this.height)) {
             this.checked = !this.checked;
         }
+    }
+    draw() {
+        this.show = true;
     }
 }
 class StartButton extends Button {
@@ -51,6 +43,7 @@ class StartButton extends Button {
         super(width, height);
     }
     draw() {
+        this.show = true;
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = "#0095DD";
@@ -60,23 +53,51 @@ class StartButton extends Button {
         ctx.fillStyle = "#FFFFFF";
         ctx.fillText("START", this.x, this.y + 35);
     }
+    click(x, y) {
+        if (this.show &&
+            isInRange(x, this.x, this.x + this.width) &&
+            isInRange(y, this.y, this.y + this.height)) {
+            this.checked = !this.checked;
+            document.removeEventListener("click", this, false);
+        }
+    }
 }
 class PauseButton extends Button {
     constructor(width, height) {
         super(width, height);
-        this.img = images[0];
+        this.img = loadImg("img/pause.png");
+        this.x = canvas.width - this.width;
+        this.y = canvas.height - this.height;
+        //this.play_img = loadImg("img/play.png");
     }
     draw() {
-        ctx.drawImage(this.img, canvas.width - this.width, canvas.height - this.height, this.width, this.height);
+        this.show = true;
+        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 }
-
+class PlayButton extends Button {
+    constructor(width, height) {
+        super(width, height);
+        this.img = loadImg("img/play.png");
+    }
+    draw() {
+        this.show = true;
+        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+    }
+}
 
 function Game() {
     this.score = 0;
     this.live = 3;
     this.startButton = new StartButton(80, 50);
     this.pauseButton = new PauseButton(30, 30);
+    this.playButton = new PlayButton(100, 100);
+    this.clearCanvas = function () {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.startButton.show = false;
+        this.pauseButton.show = false;
+        this.playButton.show = false;
+    };
     this.drawScore = function () {
         ctx.font = "16px Arial";
         ctx.fillStyle = "#0095DD";
@@ -87,6 +108,12 @@ function Game() {
         ctx.fillStyle = "#0095DD";
         ctx.fillText("Lives:" + this.live, canvas.width-65, 20);
     };
+    this.unpause = function () {
+        if (this.playButton.checked) {
+            this.pauseButton.checked = false;
+            this.playButton.checked = false;
+        }
+    }
 }
 function Ball() {
     this.x = canvas.width / 2;
@@ -298,7 +325,7 @@ collisionDetection = function () {
 };
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    game.clearCanvas();
     ball.draw();
     paddle.draw();
     brick.draw();
@@ -309,7 +336,12 @@ function draw() {
 
 function main() {
     if (!game.startButton.checked) {
+        game.clearCanvas();
         game.startButton.draw();
+    } else if (game.pauseButton.checked) {
+        game.clearCanvas();
+        game.playButton.draw();
+        game.unpause();
     } else {
         draw();
         ball.move();
