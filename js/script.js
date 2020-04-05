@@ -85,13 +85,37 @@ class PlayButton extends Button {
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 }
+class AgainButton extends Button {
+    constructor(width, height) {
+        super(width, height);
+        this.img = loadImg("img/again.png");
+        this.y = this.y + 100;
+    }
+    draw() {
+        this.show = true;
+        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+    }
+    click(x, y) {
+        if (this.show &&
+            isInRange(x, this.x, this.x + this.width) &&
+            isInRange(y, this.y, this.y + this.height)) {
+            this.checked = !this.checked;
+            document.removeEventListener("click", this, false);
+            document.location.reload();
+            clearInterval(interval);
+        }
+    }
+}
 
 function Game() {
     this.score = 0;
     this.live = 3;
+    this.is_game_win = false;
+    this.is_game_over = false;
     this.startButton = new StartButton(80, 50);
     this.pauseButton = new PauseButton(30, 30);
     this.playButton = new PlayButton(100, 100);
+    this.againButton = new AgainButton(80, 80);
     this.clearCanvas = function () {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.startButton.show = false;
@@ -108,12 +132,43 @@ function Game() {
         ctx.fillStyle = "#0095DD";
         ctx.fillText("Lives:" + this.live, canvas.width-65, 20);
     };
+    this.drawGameWin = function () {
+        this.show = true;
+        ctx.beginPath();
+        let width = 60;
+        let height = 50;
+        let x = (canvas.width - width) / 2;
+        let y = (canvas.height - height) / 2;
+        ctx.rect(x, y, width, height);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+        ctx.font = "25px Arial";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText("WIN", x, y + 35);
+    };
+    this.drawGameOver = function () {
+        this.show = true;
+        ctx.beginPath();
+        let width = 140;
+        let height = 50;
+        let x = (canvas.width - width) / 2;
+        let y = (canvas.height - height) / 2;
+        ctx.rect(x, y, width, height);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+        ctx.font = "25px Arial";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText("Game Over", x, y + 35);
+    };
     this.unpause = function () {
         if (this.playButton.checked) {
             this.pauseButton.checked = false;
             this.playButton.checked = false;
         }
-    }
+    };
+
 }
 function Ball() {
     this.x = canvas.width / 2;
@@ -281,27 +336,21 @@ function mouseMoveHandler(e) {
     }   
 }
 
-gameOver = function () {
+checkGameState = function () {
+    //game win
+    if (game.score == brick.row_count * brick.col_count) {
+        game.is_game_win = true;
+    }
+    //game over
     var npos = ball.nextPos();
     if (npos.bottom > canvas.height) {
         game.live--;
         if (game.live == 0) {
-            draw();
-            alert("Game Over");
-            document.location.reload();
-            clearInterval(interval);
+            game.is_game_over = true;
         } else {
             ball.revival();
             paddle.revival();
         }
-    }
-};
-gameWin = function () {
-    if (game.score == brick.row_count * brick.col_count) {
-        draw();
-        alert("You Win");
-        document.location.reload();
-        clearInterval(interval);
     }
 };
 collisionDetection = function () {
@@ -336,20 +385,31 @@ function draw() {
 
 function main() {
     if (!game.startButton.checked) {
+        //start state
         game.clearCanvas();
         game.startButton.draw();
     } else if (game.pauseButton.checked) {
+        //pause state
         game.clearCanvas();
         game.playButton.draw();
         game.unpause();
+    } else if (game.is_game_win || game.is_game_over) {
+        //game win / game over
+        game.clearCanvas();
+        if (game.is_game_win) {
+            game.drawGameWin();
+        } else {
+            game.drawGameOver();
+        }
+        game.againButton.draw();
     } else {
+        //running
         draw();
         ball.move();
         paddle.move();
         ball.boundaryBounce();
         collisionDetection();
-        gameOver();
-        gameWin();
+        checkGameState();
     }
 }
 
