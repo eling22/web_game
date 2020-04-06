@@ -110,6 +110,7 @@ class AgainButton extends Button {
 function Game() {
     this.score = 0;
     this.live = 3;
+    this.is_start_shoot = false;
     this.is_game_win = false;
     this.is_game_over = false;
     this.startButton = new StartButton(80, 50);
@@ -336,6 +337,13 @@ function mouseMoveHandler(e) {
     }   
 }
 
+document.addEventListener("dblclick", mouseClickHandler, false);
+function mouseClickHandler(e) {
+    if (!game.is_start_shoot) {
+        game.is_start_shoot = true;
+    }
+}
+
 checkGameState = function () {
     //game win
     if (game.score == brick.row_count * brick.col_count) {
@@ -405,7 +413,11 @@ function main() {
     } else {
         //running
         draw();
-        ball.move();
+        if (game.is_start_shoot) {
+            ball.move();
+        } else {
+            ball.x = paddle.x;
+        }
         paddle.move();
         ball.boundaryBounce();
         collisionDetection();

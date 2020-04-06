@@ -4,7 +4,7 @@ the page show on https://eling22.github.io/web_game/
 # next step
 * Breakout
   * my adding steps
-    * from different place shoot ball
+    * add remind text about double click to shoot
     * score board
     * touch control
     * setting for choosing mouse or keyboard
