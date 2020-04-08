@@ -135,32 +135,22 @@ function Game() {
     };
     this.drawGameWin = function () {
         this.show = true;
-        ctx.beginPath();
         let width = 60;
         let height = 50;
         let x = (canvas.width - width) / 2;
         let y = (canvas.height - height) / 2;
-        ctx.rect(x, y, width, height);
-        ctx.fillStyle = "#0095DD";
-        ctx.fill();
-        ctx.closePath();
         ctx.font = "25px Arial";
-        ctx.fillStyle = "#FFFFFF";
+        ctx.fillStyle = "#0095DD";
         ctx.fillText("WIN", x, y + 35);
     };
     this.drawGameOver = function () {
         this.show = true;
-        ctx.beginPath();
         let width = 140;
         let height = 50;
         let x = (canvas.width - width) / 2;
         let y = (canvas.height - height) / 2;
-        ctx.rect(x, y, width, height);
-        ctx.fillStyle = "#0095DD";
-        ctx.fill();
-        ctx.closePath();
         ctx.font = "25px Arial";
-        ctx.fillStyle = "#FFFFFF";
+        ctx.fillStyle = "#0095DD";
         ctx.fillText("Game Over", x, y + 35);
     };
     this.unpause = function () {
@@ -169,7 +159,9 @@ function Game() {
             this.playButton.checked = false;
         }
     };
-
+    this.revival = function () {
+        this.is_start_shoot = false;
+    };
 }
 function Ball() {
     this.x = canvas.width / 2;
@@ -249,6 +241,16 @@ function Paddle() {
         ctx.fillStyle = "#0095DD";
         ctx.fill();
         ctx.closePath();
+    };
+    this.drawRemindText = function () {
+        //ctx.beginPath();
+        ctx.font = "16px Arial";
+        //ctx.textAlign = 'center';
+        //ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#0095DD';
+        var start_y = canvas.height - this.height - this.offset_bottom;
+        ctx.fillText('Double Click', this.x - halfwidth, start_y + this.height+16);
+        //ctx.closePath();
     };
     this.move = function () {
         if (this.rightPress && (this.x + halfwidth + this.speed) < canvas.width) this.x += this.speed;
@@ -358,6 +360,7 @@ checkGameState = function () {
         } else {
             ball.revival();
             paddle.revival();
+            game.revival();
         }
     }
 };
@@ -417,6 +420,7 @@ function main() {
             ball.move();
         } else {
             ball.x = paddle.x;
+            paddle.drawRemindText();
         }
         paddle.move();
         ball.boundaryBounce();
