@@ -4,7 +4,10 @@ the page show on https://eling22.github.io/web_game/
 # next step
 * Breakout
   * my adding steps
-    * reform the animation
+    * add different level
+      * let brick broken by different number of hip count
+      * use different map
+      * random bonus for peddle turning long or short for certain time 
     * score board
     * touch control
     * setting for choosing mouse or keyboard
@@ -22,3 +25,6 @@ the page show on https://eling22.github.io/web_game/
 * setting
 * advertise
 
+Remind
+
+* window.requestAnimationFrame will have problem to adjust the speed

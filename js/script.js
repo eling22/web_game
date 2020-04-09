@@ -305,11 +305,6 @@ function Brick() {
     };
 }
 
-var game = new Game();
-var ball = new Ball();
-var paddle = new Paddle();
-var brick = new Brick();
-
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 function keyDownHandler(e) {
@@ -345,6 +340,11 @@ function mouseClickHandler(e) {
         game.is_start_shoot = true;
     }
 }
+
+var game = new Game();
+var ball = new Ball();
+var paddle = new Paddle();
+var brick = new Brick();
 
 checkGameState = function () {
     //game win
@@ -384,49 +384,73 @@ collisionDetection = function () {
     }
 };
 
-function draw() {
-    game.clearCanvas();
-    ball.draw();
-    paddle.draw();
-    brick.draw();
-    game.drawScore();
-    game.drawLive();
-    game.pauseButton.draw();
-}
-
-function main() {
-    if (!game.startButton.checked) {
-        //start state
-        game.clearCanvas();
+class Stage {
+    constructor() {
+        this.frame = 10;
+        this.handle;
+    }
+    startAnimate(callback) {
+        this.handle = setInterval(callback, this.frame);
+    }
+    stopAnimate() {
+        this.handle = clearInterval(this.handle);
+    }
+    startGame() {
         game.startButton.draw();
-    } else if (game.pauseButton.checked) {
-        //pause state
-        game.clearCanvas();
+    }
+    pauseGame() {
         game.playButton.draw();
         game.unpause();
-    } else if (game.is_game_win || game.is_game_over) {
-        //game win / game over
-        game.clearCanvas();
-        if (game.is_game_win) {
-            game.drawGameWin();
-        } else {
-            game.drawGameOver();
-        }
+    }
+    gameWin() {
+        game.drawGameWin();
         game.againButton.draw();
-    } else {
-        //running
-        draw();
-        if (game.is_start_shoot) {
-            ball.move();
-        } else {
-            ball.x = paddle.x;
-            paddle.drawRemindText();
-        }
+    }
+    gameOver() {
+        game.drawGameOver();
+        game.againButton.draw();
+    }
+    gameRun() {
+        ball.draw();
+        paddle.draw();
+        brick.draw();
+        game.drawScore();
+        game.drawLive();
+        game.pauseButton.draw();
+        ball.move();
         paddle.move();
         ball.boundaryBounce();
         collisionDetection();
         checkGameState();
     }
+    beforeShoot() {
+        ball.x = paddle.x;
+        ball.draw();
+        paddle.draw();
+        brick.draw();
+        game.drawScore();
+        game.drawLive();
+        game.pauseButton.draw();
+        paddle.drawRemindText();
+        paddle.move();
+    }
+    launch() {
+        function main() {
+            game.clearCanvas();
+            if (!game.startButton.checked) this.startGame();
+            else if (game.pauseButton.checked) this.pauseGame();
+            else if (game.is_game_win) this.gameWin();
+            else if (game.is_game_over) this.gameOver();
+            else if (!game.is_start_shoot) this.beforeShoot();
+            else this.gameRun();
+        }
+        stage.startAnimate(main.bind(this));
+    }
 }
 
-var interval = setInterval(main, 10);
+var stage = new Stage();
+stage.launch();
+
+//start
+//main ->pause/play
+//result-> win/gameover
