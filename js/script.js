@@ -451,6 +451,5 @@ class Stage {
 var stage = new Stage();
 stage.launch();
 
-//start
-//main ->pause/play
-//result-> win/gameover
+//use map
+//console.log(map1);

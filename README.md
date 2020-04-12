@@ -4,6 +4,7 @@ the page show on https://eling22.github.io/web_game/
 # next step
 * Breakout
   * my adding steps
+	* include map as brick
     * add different level
       * let brick broken by different number of hip count
       * use different map
