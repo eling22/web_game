@@ -270,39 +270,43 @@ function Paddle() {
         this.x = canvas.width / 2;
     };
 }
-function Brick() {
-    this.width = 75;
-    this.height = 20;
-    this.row_count = 3;
-    this.col_count = 5;
-    this.padding = 10;
-    this.offset_top = 30;
-    this.offset_left = 30;
-    this.bricks = [];
-    for (var i = 0; i < this.col_count; i++) {
-        this.bricks[i] = [];
-        for (var j = 0; j < this.row_count; j++) {
-            this.bricks[i][j] = { x1: 0, y1: 0, x2: 0, y2: 0, status: 1 };
-            //status { 0: not exist, 1:exist} 
-            this.bricks[i][j].x1 = this.offset_left + i * (this.width + this.padding);
-            this.bricks[i][j].x2 = this.bricks[i][j].x1 + this.width;
-            this.bricks[i][j].y1 = this.offset_top + j * (this.height + this.padding);
-            this.bricks[i][j].y2 = this.bricks[i][j].y1 + this.height;
+class Brick {
+    constructor(map_data) {
+        this.color = ["#FFFFFF", "#0095DD", "green"];
+        this.bricks;
+        this.createBricks(map_data.layers[0].objects);
+    }
+    createBricks(obj) {
+        this.bricks = obj;
+        for (var i = 0; i < this.bricks.length; i++) {
+            this.bricks[i].level = this.bricks[i].properties[0].value;
+            this.bricks[i].x1 = this.bricks[i].x;
+            this.bricks[i].x2 = this.bricks[i].x + this.bricks[i].width;
+            this.bricks[i].y1 = this.bricks[i].y;
+            this.bricks[i].y2 = this.bricks[i].y + this.bricks[i].height;
         }
     }
-    this.draw = function () {
-        for (var i = 0; i < this.col_count; i++) {
-            for (var j = 0; j < this.row_count; j++) {
-                if (this.bricks[i][j].status == 1) {
-                    ctx.beginPath();
-                    ctx.rect(this.bricks[i][j].x1, this.bricks[i][j].y1, this.width, this.height);
-                    ctx.fillStyle = "#0095DD";
-                    ctx.fill();
-                    ctx.closePath();
-                }
+    draw() {
+        for (var i = 0; i < this.bricks.length; i++) {
+            if (this.bricks[i].visible === true) {
+                ctx.beginPath();
+                ctx.rect(this.bricks[i].x, this.bricks[i].y, this.bricks[i].width, this.bricks[i].height);
+                ctx.fillStyle = this.color[this.bricks[i].level];
+                ctx.fill();
+                ctx.closePath();
             }
         }
-    };
+    }
+    hitBrick(index) {
+        this.bricks[index].level--;
+        if (this.bricks[index].level === 0) this.bricks[index].visible = false;
+    }
+    isClear() {
+        for (var i = 0; i < this.bricks.length; i++) {
+            if (this.bricks[i].visible === true) return false;
+        }
+        return true;
+    }
 }
 
 document.addEventListener("keydown", keyDownHandler, false);
@@ -344,18 +348,16 @@ function mouseClickHandler(e) {
 var game = new Game();
 var ball = new Ball();
 var paddle = new Paddle();
-var brick = new Brick();
+var brick = new Brick(map2);
 
 checkGameState = function () {
     //game win
-    if (game.score == brick.row_count * brick.col_count) {
-        game.is_game_win = true;
-    }
+    if (brick.isClear()) game.is_game_win = true;
     //game over
     var npos = ball.nextPos();
     if (npos.bottom > canvas.height) {
         game.live--;
-        if (game.live == 0) {
+        if (game.live === 0) {
             game.is_game_over = true;
         } else {
             ball.revival();
@@ -371,14 +373,12 @@ collisionDetection = function () {
     ball.collisionObject(pos, npos);
     ball.cancelButtonCollision(pos, npos);
     //brick
-    for (var i = 0; i < brick.col_count; i++) {
-        for (var j = 0; j < brick.row_count; j++) {
-            if (brick.bricks[i][j].status == 1) {
-                var is_collision = ball.collisionObject(brick.bricks[i][j], npos);
-                if (is_collision) {
-                    brick.bricks[i][j].status = 0;
-                    game.score++;
-                }
+    for (let i = 0; i < brick.bricks.length; i++) {
+        if (brick.bricks[i].visible === true) {
+            let is_collision = ball.collisionObject(brick.bricks[i], npos);
+            if (is_collision) {
+                brick.hitBrick(i);
+                game.score++;
             }
         }
     }
@@ -450,6 +450,3 @@ class Stage {
 
 var stage = new Stage();
 stage.launch();
-
-//use map
-//console.log(map1);

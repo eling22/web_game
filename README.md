@@ -4,10 +4,10 @@ the page show on https://eling22.github.io/web_game/
 # next step
 * Breakout
   * my adding steps
-	* include map as brick
+  * include map as brick
     * add different level
-      * let brick broken by different number of hip count
-      * use different map
+      * add level (level 1-3)
+      * two mode paddle (mouse down paddle down)
       * random bonus for peddle turning long or short for certain time 
     * score board
     * touch control
