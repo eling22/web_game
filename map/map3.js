@@ -1,4 +1,4 @@
-let map2 = {
+let map3 =  {
     "compressionlevel": -1,
     "height": 64,
     "infinite": false,
@@ -85,7 +85,7 @@ let map2 = {
                         {
                             "name": "level",
                             "type": "int",
-                            "value": 1
+                            "value": 2
                         }],
                     "rotation": 0,
                     "type": "",
@@ -187,7 +187,7 @@ let map2 = {
                         {
                             "name": "level",
                             "type": "int",
-                            "value": 1
+                            "value": 2
                         }],
                     "rotation": 0,
                     "type": "",
@@ -282,4 +282,4 @@ let map2 = {
     "version": 1.2,
     "width": 96
 }
-map_data.push(map2);
+map_data.push(map3);

@@ -308,6 +308,28 @@ class Brick {
         return true;
     }
 }
+class Level {
+    constructor(map_data) {
+        this.level = 1;
+        this.max_level = map_data.length;
+        console.log(this.max_level);
+        this.bricks = [];
+        for (let i = 0; i < map_data.length; i++) {
+            this.bricks.push(new Brick(map_data[i]));
+        }
+    }
+    getBrick() {
+        return this.bricks[this.level-1];
+    }
+    upBrickLevel() {
+        this.level++;
+        return this.bricks[this.level-1];
+    }
+    isMaxLevel() {
+        return this.level === this.max_level;
+    }
+}
+
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -348,11 +370,20 @@ function mouseClickHandler(e) {
 var game = new Game();
 var ball = new Ball();
 var paddle = new Paddle();
-var brick = new Brick(map2);
+var level = new Level(map_data);
+var brick = level.getBrick();
 
 checkGameState = function () {
     //game win
-    if (brick.isClear()) game.is_game_win = true;
+    if (brick.isClear()) {
+        if (level.isMaxLevel()) game.is_game_win = true;
+        else {
+            brick = level.upBrickLevel();
+            ball.revival();
+            paddle.revival();
+            game.revival();
+        }
+    }
     //game over
     var npos = ball.nextPos();
     if (npos.bottom > canvas.height) {
