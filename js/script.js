@@ -110,6 +110,7 @@ class AgainButton extends Button {
 function Game() {
     this.score = 0;
     this.live = 3;
+    //this.level = 1;
     this.is_start_shoot = false;
     this.is_game_win = false;
     this.is_game_over = false;
@@ -131,7 +132,14 @@ function Game() {
     this.drawLive = function () {
         ctx.font = "16px Arial";
         ctx.fillStyle = "#0095DD";
-        ctx.fillText("Lives:" + this.live, canvas.width-65, 20);
+        ctx.fillText("Lives:" + this.live, canvas.width - 65, 20);
+    };
+    this.drawLevel = function (level) {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.textAlign = "center";
+        ctx.fillText("Level - " + level.level, canvas.width / 2, 20);
+        ctx.textAlign = "left";
     };
     this.drawGameWin = function () {
         this.show = true;
@@ -447,6 +455,7 @@ class Stage {
         brick.draw();
         game.drawScore();
         game.drawLive();
+        game.drawLevel(level);
         game.pauseButton.draw();
         ball.move();
         paddle.move();
@@ -461,6 +470,7 @@ class Stage {
         brick.draw();
         game.drawScore();
         game.drawLive();
+        game.drawLevel(level);
         game.pauseButton.draw();
         paddle.drawRemindText();
         paddle.move();

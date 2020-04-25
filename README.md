@@ -6,7 +6,6 @@ the page show on https://eling22.github.io/web_game/
   * my adding steps
   * include map as brick
     * add different level
-      * show level label
       * two mode paddle (mouse down paddle down)
       * random bonus for peddle turning long or short for certain time 
     * score board
