@@ -107,13 +107,93 @@ class AgainButton extends Button {
     }
 }
 
+class Brick {
+    constructor(map_data) {
+        this.color = ["#FFFFFF", "#0095DD", "green"];
+        this.bricks;
+        this.createBricks(map_data.layers[0].objects);
+    }
+    createBricks(obj) {
+        this.bricks = obj;
+        for (var i = 0; i < this.bricks.length; i++) {
+            this.bricks[i].level = this.bricks[i].properties[0].value;
+            this.bricks[i].x1 = this.bricks[i].x;
+            this.bricks[i].x2 = this.bricks[i].x + this.bricks[i].width;
+            this.bricks[i].y1 = this.bricks[i].y;
+            this.bricks[i].y2 = this.bricks[i].y + this.bricks[i].height;
+        }
+    }
+    draw() {
+        for (var i = 0; i < this.bricks.length; i++) {
+            if (this.bricks[i].visible === true) {
+                ctx.beginPath();
+                ctx.rect(this.bricks[i].x, this.bricks[i].y, this.bricks[i].width, this.bricks[i].height);
+                ctx.fillStyle = this.color[this.bricks[i].level];
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+    }
+    hitBrick(index) {
+        this.bricks[index].level--;
+        if (this.bricks[index].level === 0) this.bricks[index].visible = false;
+    }
+    isClear() {
+        for (var i = 0; i < this.bricks.length; i++) {
+            if (this.bricks[i].visible === true) return false;
+        }
+        return true;
+    }
+}
+class MapInfo {
+    constructor(map_data) {
+        this.level = 1;
+        this.max_level = map_data.length;
+        this.bricks = [];
+        for (let i = 0; i < map_data.length; i++) {
+            this.bricks.push(new Brick(map_data[i]));
+        }
+    }
+    getBrick() {
+        return this.bricks[this.level - 1];
+    }
+    upBrickLevel() {
+        this.level++;
+        return this.bricks[this.level - 1];
+    }
+    isMaxLevel() {
+        return this.level === this.max_level;
+    }
+}
+
 function Game() {
-    this.score = 0;
-    this.live = 3;
-    //this.level = 1;
+    
+    let score = 0;
+    let lives = 3;
+    this.map = new MapInfo(map_data);
+    this.brick = this.map.getBrick();
     this.is_start_shoot = false;
     this.is_game_win = false;
     this.is_game_over = false;
+
+    let drawScore = function () {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Score:" + score, 8, 20);
+    };
+    let drawLive = function () {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Lives:" + lives, canvas.width - 65, 20);
+    };
+    let drawLevel = function () {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.textAlign = "center";
+        ctx.fillText("Level - " + game.map.level, canvas.width / 2, 20);
+        ctx.textAlign = "left";
+    };
+
     this.startButton = new StartButton(80, 50);
     this.pauseButton = new PauseButton(30, 30);
     this.playButton = new PlayButton(100, 100);
@@ -124,22 +204,11 @@ function Game() {
         this.pauseButton.show = false;
         this.playButton.show = false;
     };
-    this.drawScore = function () {
-        ctx.font = "16px Arial";
-        ctx.fillStyle = "#0095DD";
-        ctx.fillText("Score:" + this.score, 8, 20);
-    };
-    this.drawLive = function () {
-        ctx.font = "16px Arial";
-        ctx.fillStyle = "#0095DD";
-        ctx.fillText("Lives:" + this.live, canvas.width - 65, 20);
-    };
-    this.drawLevel = function (level) {
-        ctx.font = "16px Arial";
-        ctx.fillStyle = "#0095DD";
-        ctx.textAlign = "center";
-        ctx.fillText("Level - " + level.level, canvas.width / 2, 20);
-        ctx.textAlign = "left";
+    this.drawMainSceen = function(){
+        drawScore();
+        drawLive();
+        drawLevel();
+        this.brick.draw();
     };
     this.drawGameWin = function () {
         this.show = true;
@@ -169,6 +238,24 @@ function Game() {
     };
     this.revival = function () {
         this.is_start_shoot = false;
+    };
+    this.isMaxLevel = function () {
+        return this.map.isMaxLevel();
+    };
+    this.upBrickLevel = function () {
+        this.brick = this.map.upBrickLevel();
+    };
+    this.isBrickClear = function () {
+        return this.brick.isClear();
+    };
+    this.addScore = function () {
+        score++;
+    };
+    this.decreaseLives = function () {
+        lives--;
+    };
+    this.isNoLives = function () {
+        return lives === 0;
     };
 }
 function Ball() {
@@ -278,66 +365,6 @@ function Paddle() {
         this.x = canvas.width / 2;
     };
 }
-class Brick {
-    constructor(map_data) {
-        this.color = ["#FFFFFF", "#0095DD", "green"];
-        this.bricks;
-        this.createBricks(map_data.layers[0].objects);
-    }
-    createBricks(obj) {
-        this.bricks = obj;
-        for (var i = 0; i < this.bricks.length; i++) {
-            this.bricks[i].level = this.bricks[i].properties[0].value;
-            this.bricks[i].x1 = this.bricks[i].x;
-            this.bricks[i].x2 = this.bricks[i].x + this.bricks[i].width;
-            this.bricks[i].y1 = this.bricks[i].y;
-            this.bricks[i].y2 = this.bricks[i].y + this.bricks[i].height;
-        }
-    }
-    draw() {
-        for (var i = 0; i < this.bricks.length; i++) {
-            if (this.bricks[i].visible === true) {
-                ctx.beginPath();
-                ctx.rect(this.bricks[i].x, this.bricks[i].y, this.bricks[i].width, this.bricks[i].height);
-                ctx.fillStyle = this.color[this.bricks[i].level];
-                ctx.fill();
-                ctx.closePath();
-            }
-        }
-    }
-    hitBrick(index) {
-        this.bricks[index].level--;
-        if (this.bricks[index].level === 0) this.bricks[index].visible = false;
-    }
-    isClear() {
-        for (var i = 0; i < this.bricks.length; i++) {
-            if (this.bricks[i].visible === true) return false;
-        }
-        return true;
-    }
-}
-class Level {
-    constructor(map_data) {
-        this.level = 1;
-        this.max_level = map_data.length;
-        console.log(this.max_level);
-        this.bricks = [];
-        for (let i = 0; i < map_data.length; i++) {
-            this.bricks.push(new Brick(map_data[i]));
-        }
-    }
-    getBrick() {
-        return this.bricks[this.level-1];
-    }
-    upBrickLevel() {
-        this.level++;
-        return this.bricks[this.level-1];
-    }
-    isMaxLevel() {
-        return this.level === this.max_level;
-    }
-}
-
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -378,15 +405,13 @@ function mouseClickHandler(e) {
 var game = new Game();
 var ball = new Ball();
 var paddle = new Paddle();
-var level = new Level(map_data);
-var brick = level.getBrick();
 
 checkGameState = function () {
     //game win
-    if (brick.isClear()) {
-        if (level.isMaxLevel()) game.is_game_win = true;
+    if (game.isBrickClear()) {
+        if (game.isMaxLevel()) game.is_game_win = true;
         else {
-            brick = level.upBrickLevel();
+            game.upBrickLevel();
             ball.revival();
             paddle.revival();
             game.revival();
@@ -395,8 +420,8 @@ checkGameState = function () {
     //game over
     var npos = ball.nextPos();
     if (npos.bottom > canvas.height) {
-        game.live--;
-        if (game.live === 0) {
+        game.decreaseLives();
+        if (game.isNoLives()) {
             game.is_game_over = true;
         } else {
             ball.revival();
@@ -412,12 +437,13 @@ collisionDetection = function () {
     ball.collisionObject(pos, npos);
     ball.cancelButtonCollision(pos, npos);
     //brick
+    let brick = game.brick;
     for (let i = 0; i < brick.bricks.length; i++) {
         if (brick.bricks[i].visible === true) {
             let is_collision = ball.collisionObject(brick.bricks[i], npos);
             if (is_collision) {
                 brick.hitBrick(i);
-                game.score++;
+                game.addScore();
             }
         }
     }
@@ -452,10 +478,7 @@ class Stage {
     gameRun() {
         ball.draw();
         paddle.draw();
-        brick.draw();
-        game.drawScore();
-        game.drawLive();
-        game.drawLevel(level);
+        game.drawMainSceen();
         game.pauseButton.draw();
         ball.move();
         paddle.move();
@@ -467,10 +490,7 @@ class Stage {
         ball.x = paddle.x;
         ball.draw();
         paddle.draw();
-        brick.draw();
-        game.drawScore();
-        game.drawLive();
-        game.drawLevel(level);
+        game.drawMainSceen();
         game.pauseButton.draw();
         paddle.drawRemindText();
         paddle.move();
