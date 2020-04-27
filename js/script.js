@@ -167,7 +167,6 @@ class MapInfo {
 }
 
 function Game() {
-    
     let score = 0;
     let lives = 3;
     this.map = new MapInfo(map_data);
@@ -257,6 +256,15 @@ function Game() {
     this.isNoLives = function () {
         return lives === 0;
     };
+    this.isGameRunning = function () {
+        let is_game_run = game.startButton.checked
+            && !game.pauseButton.checked
+            && !game.is_game_win
+            && !game.is_game_over
+            && game.is_start_shoot;
+        //console.log(is_game_run);
+        return is_game_run;
+    };
 }
 function Ball() {
     this.x = canvas.width / 2;
@@ -324,6 +332,8 @@ function Paddle() {
     this.width = 75;
     this.height = 10;
     this.offset_bottom = 30;
+    this.is_click_down = false;
+    this.click_down_offset = 10;
     this.x = canvas.width / 2;
     this.speed = 7;
     this.rightPress = false;
@@ -364,6 +374,17 @@ function Paddle() {
     this.revival = function () {
         this.x = canvas.width / 2;
     };
+    this.isClickDown = function () {
+        return this.is_click_down === true;
+    };
+    this.clickDown = function () {
+        this.is_click_down = true;
+        this.offset_bottom -= this.click_down_offset;
+    };
+    this.clickUp = function () {
+        this.is_click_down = false;
+        this.offset_bottom += this.click_down_offset;
+    };
 }
 
 document.addEventListener("keydown", keyDownHandler, false);
@@ -399,6 +420,19 @@ document.addEventListener("dblclick", mouseClickHandler, false);
 function mouseClickHandler(e) {
     if (!game.is_start_shoot) {
         game.is_start_shoot = true;
+    }
+}
+
+document.addEventListener("mousedown", mouseDownHandle, false);
+function mouseDownHandle(e) {
+    if (game.isGameRunning() && !paddle.isClickDown()) {
+        paddle.clickDown();
+    }
+}
+document.addEventListener("mouseup", mouseUpHandle, false);
+function mouseUpHandle(e) {
+    if (game.isGameRunning() && paddle.isClickDown()) {
+        paddle.clickUp();
     }
 }
 
