@@ -175,6 +175,11 @@ function Game() {
     this.is_game_win = false;
     this.is_game_over = false;
 
+    document.addEventListener("mousemove", this, false);
+    document.addEventListener("dblclick", this, false);
+    document.addEventListener("mousedown", this, false);
+    document.addEventListener("mouseup", this, false);
+
     let drawScore = function () {
         ctx.font = "16px Arial";
         ctx.fillStyle = "#0095DD";
@@ -265,6 +270,45 @@ function Game() {
         //console.log(is_game_run);
         return is_game_run;
     };
+    this.handleEvent = function (e) {
+        switch (e.type) {
+            case 'mousemove':
+                this.mouseMoveHandler(e);
+                break;
+            case 'dblclick':
+                this.mouseClickHandler(e);
+                break;
+            case 'mousedown':
+                this.mouseDownHandle(e);
+                break;
+            case 'mouseup':
+                this.mouseUpHandle(e);
+                break;
+        }
+    };
+    this.mouseMoveHandler = function (e) {
+        var mouse_x = e.clientX - canvas.offsetLeft;
+        if (game.startButton.checked) {
+            if (isInRange(mouse_x, paddle.width / 2, canvas.width - paddle.width / 2)) {
+                paddle.x = mouse_x;
+            }
+        }
+    };
+    this.mouseClickHandler = function(e) {
+        if (!game.is_start_shoot) {
+            game.is_start_shoot = true;
+        }
+    };
+    this.mouseDownHandle = function (e) {
+        if (game.isGameRunning() && !paddle.isClickDown()) {
+            paddle.clickDown();
+        }
+    };
+    this.mouseUpHandle = function (e) {
+        if (game.isGameRunning() && paddle.isClickDown()) {
+            paddle.clickUp();
+        }
+    };
 }
 function Ball() {
     this.x = canvas.width / 2;
@@ -339,6 +383,9 @@ function Paddle() {
     this.rightPress = false;
     this.leftPress = false;
     var halfwidth = this.width / 2;
+    document.addEventListener("keydown", this, false);
+    document.addEventListener("keyup", this, false);
+
     this.draw = function () {
         ctx.beginPath();
         var start_y = canvas.height - this.height - this.offset_bottom;
@@ -385,55 +432,32 @@ function Paddle() {
         this.is_click_down = false;
         this.offset_bottom += this.click_down_offset;
     };
-}
-
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);
-function keyDownHandler(e) {
-    if (e.key == "Right" || e.key == "ArrowRight") {
-        paddle.rightPress = true;
-    }
-    if (e.key == "Left" || e.key == "ArrowLeft") {
-        paddle.leftPress = true;
-    }
-}
-function keyUpHandler(e) {
-    if (e.key == "Right" || e.key == "ArrowRight") {
-        paddle.rightPress = false;
-    }
-    if (e.key == "Left" || e.key == "ArrowLeft") {
-        paddle.leftPress = false;
-    }
-}
-
-document.addEventListener("mousemove", mouseMoveHandler, false);
-function mouseMoveHandler(e) {
-    var mouse_x = e.clientX - canvas.offsetLeft;
-    if (game.startButton.checked) {
-        if (isInRange(mouse_x, paddle.width / 2, canvas.width - paddle.width / 2)) {
-            paddle.x = mouse_x;
+    this.handleEvent = function (e) {
+        switch (e.type) {
+            case 'keydown':
+                this.keyDownHandler(e);
+                break;
+            case 'keyup':
+                this.keyUpHandler(e);
+                break;
         }
-    }   
-}
-
-document.addEventListener("dblclick", mouseClickHandler, false);
-function mouseClickHandler(e) {
-    if (!game.is_start_shoot) {
-        game.is_start_shoot = true;
-    }
-}
-
-document.addEventListener("mousedown", mouseDownHandle, false);
-function mouseDownHandle(e) {
-    if (game.isGameRunning() && !paddle.isClickDown()) {
-        paddle.clickDown();
-    }
-}
-document.addEventListener("mouseup", mouseUpHandle, false);
-function mouseUpHandle(e) {
-    if (game.isGameRunning() && paddle.isClickDown()) {
-        paddle.clickUp();
-    }
+    };
+    this.keyDownHandler = function (e) {
+        if (e.key == "Right" || e.key == "ArrowRight") {
+            paddle.rightPress = true;
+        }
+        if (e.key == "Left" || e.key == "ArrowLeft") {
+            paddle.leftPress = true;
+        }
+    };
+    this.keyUpHandler = function (e) {
+        if (e.key == "Right" || e.key == "ArrowRight") {
+            paddle.rightPress = false;
+        }
+        if (e.key == "Left" || e.key == "ArrowLeft") {
+            paddle.leftPress = false;
+        }
+    };
 }
 
 var game = new Game();

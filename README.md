@@ -6,7 +6,7 @@ the page show on https://eling22.github.io/web_game/
   * my adding steps
   * include map as brick
     * add different level
-      * arrange the events
+      * put all into game
       * random bonus for peddle turning long or short for certain time 
     * score board
     * touch control
