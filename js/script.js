@@ -568,4 +568,69 @@ class Stage {
 }
 
 var stage = new Stage();
-stage.launch();
+//stage.launch();
+
+class State {
+    handle() {}
+}
+class StartState extends State {
+    constructor(game_stage) {
+        super();
+        this.game_stage = game_stage;
+    }
+    handle() {
+        console.log("start stage");
+        stage.startGame();
+        if (game.startButton.checked) {
+            this.game_stage.setState(this.game_stage.win_state);
+        }
+    }
+}
+
+class WinState extends State {
+    constructor(game_stage) {
+        super();
+        this.game_stage = game_stage;
+    }
+    handle() {
+        console.log("win stage");
+        stage.gameWin();
+        if (game.againButton.checked) {
+            this.game_stage.setState(this.game_stage.start_state);
+        }
+    }
+}
+
+class GameStage {
+    constructor(){
+
+        this.start_state = new StartState(this);
+        this.win_state = new WinState(this);
+
+        this.frame = 10;
+        this.handle;
+        this.state = this.start_state;
+    }
+    setState(st) {
+        this.state = st;
+    }
+    getState() {
+        return this.state;
+    }
+    Run() {
+        this.state.handle();
+    }
+    startAnimate(callback) {
+        this.handle = setInterval(callback, this.frame);
+    }
+    launch() {
+        function main() {
+            game.clearCanvas();
+            this.Run();
+        }
+        this.startAnimate(main.bind(this));
+    }
+}
+
+game_state = new GameStage();
+game_state.launch();
